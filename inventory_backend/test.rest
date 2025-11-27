@@ -1,0 +1,109 @@
+# Inventory API test file for VS Code REST Client
+# Usage:
+# 1. Start Laravel server: `php artisan serve --host=127.0.0.1 --port=8000`
+# 2. Open this file in VS Code and use the REST Client extension to run requests.
+# 3. After login, copy the `token` value from the response and paste it into the `@token` variable below.
+
+@base_url = http://127.0.0.1:8000
+@token = 14|ETPLSrgsWIWl0DMfsIFk5crUnZ0SZXXHfSlSlu7T4f61575d
+
+### Register (create a karyawan)
+POST {{base_url}}/api/register
+Content-Type: application/json
+
+{
+  "nama": "Operator Tiga",
+  "email": "operator3@example.test",
+  "password": "password123",
+  "role": "operator"
+}
+
+### Login (use created user) -> copy returned token into @token
+POST {{base_url}}/api/login
+Content-Type: application/json
+
+{
+  "email": "operator3@example.test",
+  "password": "password123"
+}
+
+### Logout (protected) - set Authorization header to: Bearer <token>
+POST {{base_url}}/api/logout
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Role: any authenticated user (karyawan/manager/admin)
+
+
+### Create Request Barang (protected)
+POST {{base_url}}/api/request-barang
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id_barang": 2,
+  "qty": 6,
+  "tanggal_request": "2025-11-24"
+}
+
+# Role: `karyawan` (authenticated). Karyawan membuat permintaan barang untuk dirinya.
+
+### List Request Barang (protected)
+GET {{base_url}}/api/request-barang
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Role: `karyawan` or `manager` (authenticated).
+# - Karyawan: biasanya melihat request miliknya sendiri.
+# - Manager: dapat melihat semua request untuk approval.
+
+
+### Update Request Status (protected, probably manager)
+# Replace {id} with the request id to update
+PUT {{base_url}}/api/request-barang/3/status
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "done"
+}
+
+# Role: `manager` (authenticated). Hanya manager atau role yang berwenang yang boleh approve/deny.
+
+# sampai sini
+### Create Barang Keluar (protected)
+POST {{base_url}}/api/barang-keluar
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id_request": 1,
+  "qty": 2,
+  "keterangan": "Pengeluaran contoh"
+}
+
+# Role: `karyawan` atau `inventory` (authenticated). Pastikan request sudah `approved` sebelum membuat barang keluar.
+
+### List Barang Keluar (protected)
+GET {{base_url}}/api/barang-keluar
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Role: authenticated (karyawan/manager/inventory) — tergantung kebijakan aplikasi.
+
+
+### Tracking (protected)
+GET {{base_url}}/api/tracking
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Role: authenticated — melihat status tracking permintaan/barang.
+
+
+# Notes:
+# - If you get 500 errors, open `storage/logs/laravel.log` for details.
+# - If DB schema mismatch occurs, ensure migrations ran successfully and tables/columns exist.
+# - For Session/CSRF issues: ensure you're using Bearer token in Authorization header and `Accept: application/json`.
