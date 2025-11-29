@@ -33,48 +33,48 @@ class RoleDrawer extends StatelessWidget {
             leading: const Icon(Icons.people),
             title: const Text('Manajemen User'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/users'),
+                Navigator.pushNamed(context, '/admin/users'),
           ),
           ListTile(
             leading: const Icon(Icons.local_shipping),
             title: const Text('Data Supplier'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/suppliers'),
+                Navigator.pushNamed(context, '/admin/suppliers'),
           ),
           ListTile(
             leading: const Icon(Icons.inventory_2),
             title: const Text('Data Barang'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/items'),
+                Navigator.pushNamed(context, '/admin/items'),
           ),
           ListTile(
             leading: const Icon(Icons.download),
             title: const Text('Data Barang Masuk'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/masuk'),
+                Navigator.pushNamed(context, '/admin/masuk'),
           ),
           ListTile(
             leading: const Icon(Icons.upload),
             title: const Text('Data Barang Keluar'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/keluar'),
+                Navigator.pushNamed(context, '/admin/keluar'),
           ),
           ListTile(
             leading: const Icon(Icons.insert_drive_file),
             title: const Text('Laporan'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/reports'),
+                Navigator.pushNamed(context, '/admin/reports'),
           ),
           ListTile(
             leading: const Icon(Icons.request_page),
             title: const Text('Approve Requests'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/admin/requests'),
+                Navigator.pushNamed(context, '/admin/requests'),
           ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Pengaturan Akun'),
-            onTap: () => Navigator.pushReplacementNamed(context, '/account'),
+            onTap: () => Navigator.pushNamed(context, '/account'),
           ),
         ]);
       }
@@ -84,31 +84,39 @@ class RoleDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.check_circle_outline),
             title: const Text('Persetujuan Request'),
-            onTap: () =>
-                Navigator.pushReplacementNamed(context, '/manager/approve'),
+            onTap: () {
+              Navigator.pop(context); // Tutup drawer
+              Navigator.pushNamed(context, '/manager/approve'); // GUNAKAN pushNamed
+            },
           ),
           ListTile(
-            leading: const Icon(Icons.receipt_long),
+            leading: const Icon(Icons.list_alt),
             title: const Text('Semua Request'),
-            onTap: () =>
-                Navigator.pushReplacementNamed(context, '/manager/requests'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/manager/requests');
+            },
           ),
           ListTile(
             leading: const Icon(Icons.insert_chart),
             title: const Text('Laporan'),
-            onTap: () =>
-                Navigator.pushReplacementNamed(context, '/manager/laporan'),
+            onTap: () {
+                Navigator.pop(context); // Tutup drawer
+                Navigator.pushNamed(context, '/manager/laporan');
+              },
           ),
           ListTile(
             leading: const Icon(Icons.inventory_2),
             title: const Text('Data Barang'),
-            onTap: () =>
-                Navigator.pushReplacementNamed(context, '/manager/items'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/manager/items');
+            },
           ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Pengaturan Akun'),
-            onTap: () => Navigator.pushReplacementNamed(context, '/account'),
+            onTap: () => Navigator.pushNamed(context, '/account'),
           ),
         ]);
       }
@@ -140,7 +148,7 @@ class RoleDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Pengaturan Akun'),
-            onTap: () => Navigator.pushReplacementNamed(context, '/account'),
+            onTap: () => Navigator.pushNamed(context, '/account'),
           ),
         ]);
       }
@@ -157,13 +165,13 @@ class RoleDrawer extends StatelessWidget {
             leading: const Icon(Icons.track_changes),
             title: const Text('Tracking Request'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/staff/tracking'),
+                Navigator.pushNamed(context, '/staff/tracking'),
           ),
           ListTile(
             leading: const Icon(Icons.history),
             title: const Text('Riwayat Permintaan'),
             onTap: () =>
-                Navigator.pushReplacementNamed(context, '/staff/riwayat'),
+                Navigator.pushNamed(context, '/staff/riwayat'),
           ),
         ]);
       }

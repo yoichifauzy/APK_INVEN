@@ -42,7 +42,7 @@ class _StaffTrackingPageState extends State<StaffTrackingPage> {
         c = Colors.blue;
         break;
       case 'done':
-        c = Colors.green;
+        c = const Color.fromARGB(255, 21, 222, 28);
         break;
       case 'rejected':
         c = Colors.red;
@@ -54,34 +54,83 @@ class _StaffTrackingPageState extends State<StaffTrackingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const RoleDrawer(),
-      appBar: AppBar(title: const Text('Tracking Request')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: _myRequests.length,
-                itemBuilder: (c, i) {
-                  final r = _myRequests[i];
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                        r['nama_barang'] ?? r['barang']?['nama_barang'] ?? '-',
+Widget build(BuildContext context) {
+  return Scaffold(
+    drawer: const RoleDrawer(),
+    backgroundColor: Colors.grey.shade100,
+    appBar: AppBar(
+      title: const Text('Tracking Request'),
+      backgroundColor: Colors.teal.shade700,
+      elevation: 0,
+      foregroundColor: Colors.white,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
+      ),
+    ),
+    body: _loading
+        ? const Center(child: CircularProgressIndicator())
+        : RefreshIndicator(
+            onRefresh: _load,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: _myRequests.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Belum ada request yang dibuat",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade600),
                       ),
-                      subtitle: Text(
-                        'Qty: ${r['qty']}\nTanggal: ${r['tanggal_request'] ?? ''}',
-                      ),
-                      trailing: _statusChip(r['status']?.toString()),
-                      isThreeLine: true,
+                    )
+                  : ListView.separated(
+                      itemCount: _myRequests.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (c, i) {
+                        final r = _myRequests[i];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            title: Text(
+                              r['nama_barang'] ??
+                                  r['barang']?['nama_barang'] ??
+                                  '-',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal.shade800,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                "Qty: ${r['qty']}\nTanggal: ${r['tanggal_request'] ?? '-'}",
+                                style: TextStyle(
+                                  height: 1.4,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                            trailing: _statusChip(r['status']?.toString()),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
-    );
-  }
+          ),
+  );
+}
+
 }
