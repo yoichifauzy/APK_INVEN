@@ -66,11 +66,15 @@ class _ItemsPageState extends State<ItemsPage> {
               children: [
                 TextFormField(
                   initialValue: nama,
-                  decoration: const InputDecoration(labelText: 'Nama Barang'),
+                  decoration: const InputDecoration(
+                    labelText: 'Nama Barang',
+                    border: OutlineInputBorder(),
+                  ),
                   onSaved: (v) => nama = v ?? '',
                   validator: (v) =>
                       (v == null || v.isEmpty) ? 'Nama required' : null,
                 ),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: supplierId == 0 && _suppliers.isNotEmpty
                       ? _suppliers[0]['id'] as int
@@ -84,8 +88,12 @@ class _ItemsPageState extends State<ItemsPage> {
                       )
                       .toList(),
                   onChanged: (v) => supplierId = v ?? supplierId,
-                  decoration: const InputDecoration(labelText: 'Supplier'),
+                  decoration: const InputDecoration(
+                    labelText: 'Supplier',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
                   value: kategoriId == 0 && _categories.isNotEmpty
                       ? _categories[0]['id'] as int
@@ -99,27 +107,46 @@ class _ItemsPageState extends State<ItemsPage> {
                       )
                       .toList(),
                   onChanged: (v) => kategoriId = v ?? kategoriId,
-                  decoration: const InputDecoration(labelText: 'Kategori'),
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   initialValue: stok,
-                  decoration: const InputDecoration(labelText: 'Stok'),
+                  decoration: const InputDecoration(
+                    labelText: 'Stok',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   onSaved: (v) => stok = v ?? '0',
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   initialValue: lokasi,
-                  decoration: const InputDecoration(labelText: 'Lokasi (rak)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Lokasi (rak)',
+                    border: OutlineInputBorder(),
+                  ),
                   onSaved: (v) => lokasi = v ?? '',
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   initialValue: satuan,
-                  decoration: const InputDecoration(labelText: 'Satuan'),
+                  decoration: const InputDecoration(
+                    labelText: 'Satuan',
+                    border: OutlineInputBorder(),
+                  ),
                   onSaved: (v) => satuan = v ?? '',
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   initialValue: harga,
-                  decoration: const InputDecoration(labelText: 'Harga'),
+                  decoration: const InputDecoration(
+                    labelText: 'Harga',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   onSaved: (v) => harga = v ?? '0',
                 ),
@@ -130,7 +157,10 @@ class _ItemsPageState extends State<ItemsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -157,22 +187,33 @@ class _ItemsPageState extends State<ItemsPage> {
               }
               Navigator.pop(context, ok);
             },
-            child: const Text('Simpan'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal.shade700,
+            ),
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
 
     if (result == true) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Berhasil')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Data barang berhasil disimpan'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       await _loadAll();
     } else if (result == false) {
       final auth = Provider.of<AuthService>(context, listen: false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.lastError ?? 'Gagal')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.lastError ?? 'Gagal menyimpan'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -180,15 +221,21 @@ class _ItemsPageState extends State<ItemsPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('Hapus barang'),
-        content: Text('Hapus ${item['nama_barang']} ?'),
+        title: const Text('Hapus Barang'),
+        content: Text('Hapus ${item['nama_barang']}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(c, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+            ),
             child: const Text('Hapus'),
           ),
         ],
@@ -201,61 +248,212 @@ class _ItemsPageState extends State<ItemsPage> {
         : int.parse(item['id'].toString());
     final ok = await auth.deleteItem(id);
     if (ok) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Terhapus')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Barang berhasil dihapus'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       await _loadAll();
     } else {
       final auth = Provider.of<AuthService>(context, listen: false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.lastError ?? 'Gagal menghapus')),
+        SnackBar(
+          content: Text(auth.lastError ?? 'Gagal menghapus'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
+  }
+
+  Widget _stockChip(int stok) {
+    Color color;
+    if (stok <= 0) {
+      color = Colors.red.shade600;
+    } else if (stok < 10) {
+      color = Colors.orange.shade600;
+    } else {
+      color = Colors.green.shade600;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        '$stok',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Barang')),
+      backgroundColor: Colors.grey[50],
       drawer: const RoleDrawer(),
+      appBar: AppBar(
+        title: const Text('Data Barang'),
+        backgroundColor: Colors.teal.shade700,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadAll,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: _items.length,
-                itemBuilder: (context, i) {
-                  final it = _items[i];
-                  return Card(
-                    child: ListTile(
-                      title: Text(it['nama_barang'] ?? ''),
-                      subtitle: Text(
-                        'Supplier: ${it['supplier_name'] ?? ''}\nStok: ${it['stok'] ?? ''} ${it['satuan'] ?? ''}\nHarga: ${it['harga'] ?? ''}',
-                      ),
-                      isThreeLine: true,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showItemDialog(item: it),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _deleteItem(it),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.teal.shade700),
               ),
-            ),
+            )
+          : _items.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 80,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Belum ada data barang',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Data barang akan muncul di sini',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadAll,
+                  color: Colors.teal.shade700,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _items.length,
+                    itemBuilder: (context, i) {
+                      final it = _items[i];
+                      final stok = int.tryParse(it['stok']?.toString() ?? '0') ?? 0;
+                      
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.inventory_2_outlined,
+                              color: Colors.blue.shade700,
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            it['nama_barang'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text(
+                                'Supplier: ${it['supplier_name'] ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Kategori: ${it['category_name'] ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Lokasi: ${it['lokasi'] ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Harga: ${it['harga'] ?? '0'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _stockChip(stok),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.blue.shade600,
+                                ),
+                                onPressed: () => _showItemDialog(item: it),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete_outlined,
+                                  color: Colors.red.shade600,
+                                ),
+                                onPressed: () => _deleteItem(it),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showItemDialog(),
+        backgroundColor: Colors.teal.shade700,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.add),
-        tooltip: 'Tambah barang',
       ),
     );
   }

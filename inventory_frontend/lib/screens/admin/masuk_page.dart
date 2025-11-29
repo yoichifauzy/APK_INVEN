@@ -37,6 +37,88 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
     });
   }
 
+  Widget _statusChip(String? status) {
+    status = status ?? '';
+    Color color;
+    Color textColor;
+    String statusText;
+    
+    switch (status) {
+      case 'pending':
+        color = Colors.orange.shade50;
+        textColor = Colors.orange.shade800;
+        statusText = 'Pending';
+        break;
+      case 'approved':
+        color = Colors.green.shade50;
+        textColor = Colors.green.shade800;
+        statusText = 'Approved';
+        break;
+      case 'rejected':
+        color = Colors.red.shade50;
+        textColor = Colors.red.shade800;
+        statusText = 'Rejected';
+        break;
+      default:
+        color = Colors.grey.shade50;
+        textColor = Colors.grey.shade800;
+        statusText = 'Unknown';
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: textColor.withOpacity(0.3)),
+      ),
+      child: Text(
+        statusText,
+        style: TextStyle(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  IconData _statusIcon(String? status) {
+    switch (status) {
+      case 'pending':
+        return Icons.pending_actions;
+      case 'approved':
+        return Icons.check_circle_outline;
+      case 'rejected':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  Color _statusIconColor(String? status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange.shade700;
+      case 'approved':
+        return Colors.green.shade700;
+      case 'rejected':
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade700;
+    }
+  }
+
+  String _formatDate(String? date) {
+    if (date == null || date.isEmpty) return '-';
+    try {
+      final DateTime parsedDate = DateTime.parse(date);
+      return '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}';
+    } catch (e) {
+      return date;
+    }
+  }
+
   Future<void> _showMasukDialog() async {
     final _formKey = GlobalKey<FormState>();
     int selectedItemId = _items.isNotEmpty ? (_items[0]['id'] as int) : 0;
@@ -71,8 +153,12 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
                         )
                         .toList(),
                     onChanged: (v) => selectedItemId = v ?? selectedItemId,
-                    decoration: const InputDecoration(labelText: 'Barang'),
+                    decoration: const InputDecoration(
+                      labelText: 'Barang',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
+                const SizedBox(height: 12),
                 if (_suppliers.isNotEmpty)
                   DropdownButtonFormField<int>(
                     value: selectedSupplierId,
@@ -87,16 +173,22 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
                     onChanged: (v) => selectedSupplierId = v,
                     decoration: const InputDecoration(
                       labelText: 'Supplier (opsional)',
+                      border: OutlineInputBorder(),
                     ),
                   ),
+                const SizedBox(height: 12),
                 TextFormField(
                   initialValue: qty,
-                  decoration: const InputDecoration(labelText: 'Qty'),
+                  decoration: const InputDecoration(
+                    labelText: 'Qty',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (v) =>
                       (v == null || v.isEmpty) ? 'Qty required' : null,
                   onSaved: (v) => qty = v ?? '1',
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
                   readOnly: true,
                   controller: TextEditingController(
@@ -104,6 +196,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
                   ),
                   decoration: const InputDecoration(
                     labelText: 'Tanggal (YYYY-MM-DD)',
+                    border: OutlineInputBorder(),
                   ),
                   onTap: () async {
                     final d = await showDatePicker(
@@ -118,8 +211,12 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
                     }
                   },
                 ),
+                const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Keterangan'),
+                  decoration: const InputDecoration(
+                    labelText: 'Keterangan',
+                    border: OutlineInputBorder(),
+                  ),
                   onSaved: (v) => keterangan = v ?? '',
                 ),
               ],
@@ -129,7 +226,10 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -150,6 +250,9 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
                 Navigator.pop(c, ok);
               } catch (_) {}
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal.shade700,
+            ),
             child: const Text('Simpan'),
           ),
         ],
@@ -158,49 +261,83 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
 
     if (result == true) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Barang masuk disimpan')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Barang masuk berhasil disimpan'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       await _loadAll();
     } else if (result == false) {
       final auth = Provider.of<AuthService>(context, listen: false);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.lastError ?? 'Gagal')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.lastError ?? 'Gagal menyimpan'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
   Future<void> _showDetail(Map<String, dynamic> e) async {
-    final tanggalRaw = e['tanggal_masuk'];
-    String tanggal = '';
-    if (tanggalRaw != null) {
-      try {
-        tanggal = tanggalRaw.toString().split('T').first;
-      } catch (_) {
-        tanggal = tanggalRaw.toString();
-      }
-    }
-
+    final tanggal = _formatDate(e['tanggal_masuk']?.toString());
+    
     await showDialog<void>(
       context: context,
       builder: (c) => AlertDialog(
-        title: Text('Detail #${e['id'] ?? ''}'),
+        title: Text('Detail Barang Masuk #${e['id'] ?? ''}'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Barang: ${e['nama_barang'] ?? ''}'),
-              Text('Supplier: ${e['nama_supplier'] ?? '-'}'),
-              Text('Qty: ${e['qty'] ?? ''}'),
-              Text('Tanggal: $tanggal'),
-              Text('Operator: ${e['user_name'] ?? '-'}'),
-              Text('Status: ${e['status'] ?? 'pending'}'),
-              if ((e['reject_reason'] ?? '').toString().isNotEmpty)
-                Text('Reject reason: ${e['reject_reason']}'),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Barang: ${e['nama_barang'] ?? ''}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('Supplier: ${e['nama_supplier'] ?? '-'}'),
+                    Text('Qty: ${e['qty'] ?? ''}'),
+                    Text('Tanggal: $tanggal'),
+                    Text('Operator: ${e['user_name'] ?? '-'}'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
-              Text('Keterangan:'),
+              Text(
+                'Keterangan:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade700,
+                ),
+              ),
               Text(e['keterangan'] ?? '-'),
+              if ((e['reject_reason'] ?? '').toString().isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Alasan Penolakan:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red.shade700,
+                  ),
+                ),
+                Text(
+                  e['reject_reason'] ?? '',
+                  style: TextStyle(color: Colors.red.shade600),
+                ),
+              ],
             ],
           ),
         ),
@@ -209,416 +346,168 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
             onPressed: () => Navigator.pop(c),
             child: const Text('Tutup'),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(c);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cetak belum diimplementasikan')),
-              );
-            },
-            child: const Text('Cetak'),
-          ),
         ],
       ),
     );
-  }
-
-  Future<void> _showEditDialog(Map<String, dynamic> item) async {
-    final _formKey = GlobalKey<FormState>();
-    int selectedItemId = item['id_barang'] is int
-        ? item['id_barang']
-        : int.parse(item['id_barang'].toString());
-    int? selectedSupplierId = item['id_supplier'] is int
-        ? item['id_supplier']
-        : (item['id_supplier'] != null
-              ? int.parse(item['id_supplier'].toString())
-              : (_suppliers.isNotEmpty ? (_suppliers[0]['id'] as int) : null));
-    String qty = item['qty']?.toString() ?? '1';
-    DateTime tanggal =
-        DateTime.tryParse(item['tanggal_masuk']?.toString() ?? '') ??
-        DateTime.now();
-    String keterangan = item['keterangan'] ?? '';
-
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text('Edit Barang Masuk'),
-        content: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<int>(
-                  value: selectedItemId,
-                  items: _items
-                      .map(
-                        (it) => DropdownMenuItem(
-                          value: it['id'] as int,
-                          child: Text(it['nama_barang'] ?? ''),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => selectedItemId = v ?? selectedItemId,
-                  decoration: const InputDecoration(labelText: 'Barang'),
-                ),
-                if (_suppliers.isNotEmpty)
-                  DropdownButtonFormField<int>(
-                    value: selectedSupplierId,
-                    items: _suppliers
-                        .map(
-                          (s) => DropdownMenuItem(
-                            value: s['id'] as int,
-                            child: Text(s['nama_supplier'] ?? ''),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (v) => selectedSupplierId = v,
-                    decoration: const InputDecoration(
-                      labelText: 'Supplier (opsional)',
-                    ),
-                  ),
-                TextFormField(
-                  initialValue: qty,
-                  decoration: const InputDecoration(labelText: 'Qty'),
-                  keyboardType: TextInputType.number,
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Qty required' : null,
-                  onSaved: (v) => qty = v ?? '1',
-                ),
-                TextFormField(
-                  readOnly: true,
-                  controller: TextEditingController(
-                    text: tanggal.toIso8601String().split('T').first,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Tanggal (YYYY-MM-DD)',
-                  ),
-                  onTap: () async {
-                    final d = await showDatePicker(
-                      context: context,
-                      initialDate: tanggal,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (d != null) {
-                      tanggal = d;
-                      setState(() {});
-                    }
-                  },
-                ),
-                TextFormField(
-                  initialValue: keterangan,
-                  decoration: const InputDecoration(labelText: 'Keterangan'),
-                  onSaved: (v) => keterangan = v ?? '',
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (!_formKey.currentState!.validate()) return;
-              _formKey.currentState!.save();
-              final auth = Provider.of<AuthService>(context, listen: false);
-              final payload = {
-                'id_barang': selectedItemId,
-                if (selectedSupplierId != null)
-                  'id_supplier': selectedSupplierId,
-                'qty': int.tryParse(qty) ?? 1,
-                'tanggal_masuk': tanggal.toIso8601String(),
-                'keterangan': keterangan,
-              };
-              final ok = await auth.updateBarangMasuk(
-                item['id'] is int
-                    ? item['id']
-                    : int.parse(item['id'].toString()),
-                payload,
-              );
-              if (!mounted) return;
-              try {
-                Navigator.pop(c, ok);
-              } catch (_) {}
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
-
-    if (result == true) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Diperbarui')));
-      await _loadAll();
-    } else if (result == false) {
-      final auth = Provider.of<AuthService>(context, listen: false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.lastError ?? 'Gagal')));
-    }
-  }
-
-  Future<void> _showRejectDialog(Map<String, dynamic> item) async {
-    final _formKey = GlobalKey<FormState>();
-    String reason = '';
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text('Reject Barang Masuk'),
-        content: Form(
-          key: _formKey,
-          child: TextFormField(
-            decoration: const InputDecoration(labelText: 'Alasan penolakan'),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'Alasan required' : null,
-            onSaved: (v) => reason = v ?? '',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-              _formKey.currentState!.save();
-              Navigator.pop(c, true);
-            },
-            child: const Text('Reject'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    final auth = Provider.of<AuthService>(context, listen: false);
-    final res = await auth.rejectBarangMasuk(
-      item['id'] is int ? item['id'] : int.parse(item['id'].toString()),
-      reason: reason,
-    );
-    if (!mounted) return;
-    if (res) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Ditolak')));
-      await _loadAll();
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.lastError ?? 'Gagal')));
-    }
-  }
-
-  Future<void> _deleteEntry(Map<String, dynamic> entry) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text('Hapus barang masuk'),
-        content: const Text(
-          'Menghapus akan mengurangi histori dan mengembalikan stok. Lanjutkan?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(c, true),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    final auth = Provider.of<AuthService>(context, listen: false);
-    final id = entry['id'] is int
-        ? entry['id']
-        : int.parse(entry['id'].toString());
-    final res = await auth.deleteBarangMasuk(id);
-    if (!mounted) return;
-    if (res) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Dihapus')));
-      await _loadAll();
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.lastError ?? 'Gagal')));
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Barang Masuk')),
+      backgroundColor: Colors.grey[50],
       drawer: const RoleDrawer(),
+      appBar: AppBar(
+        title: const Text('Data Barang Masuk'),
+        backgroundColor: Colors.teal.shade700,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadAll,
-              child: _entries.isEmpty
-                  ? ListView(
-                      children: const [
-                        SizedBox(height: 80),
-                        Center(child: Text('Belum ada riwayat barang masuk')),
-                      ],
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(8),
-                      itemCount: _entries.length,
-                      itemBuilder: (context, i) {
-                        final e = _entries[i];
-                        final tanggalRaw = e['tanggal_masuk'];
-                        String tanggalStr = '';
-                        if (tanggalRaw != null) {
-                          try {
-                            tanggalStr = tanggalRaw.toString().split('T').first;
-                          } catch (_) {
-                            tanggalStr = tanggalRaw.toString();
-                          }
-                        }
-                        final status = (e['status'] ?? 'pending').toString();
-                        return Card(
-                          child: ListTile(
-                            title: Text(e['nama_barang'] ?? ''),
-                            subtitle: Text(
-                              'Qty: ${e['qty'] ?? ''} • Tanggal: $tanggalStr\nSupplier: ${e['nama_supplier'] ?? '-'}\nOleh: ${e['user_name'] ?? '-'}\nKeterangan: ${e['keterangan'] ?? ''}',
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.teal.shade700),
+              ),
+            )
+          : _entries.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 80,
+                        color: Colors.grey.shade400,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Belum ada data barang masuk',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Data barang masuk akan muncul di sini',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadAll,
+                  color: Colors.teal.shade700,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _entries.length,
+                    itemBuilder: (context, i) {
+                      final e = _entries[i];
+                      final status = (e['status'] ?? 'pending').toString();
+                      final tanggal = _formatDate(e['tanggal_masuk']?.toString());
+                      
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
-                            isThreeLine: true,
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (status == 'pending')
-                                  const Chip(
-                                    label: Text('Pending'),
-                                    backgroundColor: Colors.orangeAccent,
-                                  )
-                                else if (status == 'approved')
-                                  const Chip(
-                                    label: Text('Approved'),
-                                    backgroundColor: Colors.greenAccent,
-                                  )
-                                else
-                                  const Chip(
-                                    label: Text('Rejected'),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                const SizedBox(width: 8),
-                                PopupMenuButton<String>(
-                                  onSelected: (v) async {
-                                    final auth = Provider.of<AuthService>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    if (v == 'view')
-                                      return await _showDetail(e);
-                                    if (v == 'approve') {
-                                      final ok = await auth.approveBarangMasuk(
-                                        e['id'] is int
-                                            ? e['id']
-                                            : int.parse(e['id'].toString()),
-                                      );
-                                      if (!mounted) return;
-                                      if (ok) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Approved'),
-                                          ),
-                                        );
-                                        await _loadAll();
-                                      } else {
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              auth.lastError ?? 'Gagal',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                    if (v == 'reject')
-                                      return await _showRejectDialog(e);
-                                    if (v == 'edit')
-                                      return await _showEditDialog(e);
-                                    if (v == 'delete')
-                                      return await _deleteEntry(e);
-                                    if (v == 'print') {
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Cetak belum diimplementasikan',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  itemBuilder: (c) {
-                                    final List<PopupMenuEntry<String>> items = [
-                                      const PopupMenuItem(
-                                        value: 'view',
-                                        child: Text('View Detail'),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'approve',
-                                        child: Text('Approve'),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'reject',
-                                        child: Text('Reject'),
-                                      ),
-                                    ];
-                                    if (status == 'pending')
-                                      items.add(
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Text('Edit'),
-                                        ),
-                                      );
-                                    items.add(
-                                      const PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text('Delete'),
-                                      ),
-                                    );
-                                    items.add(
-                                      const PopupMenuItem(
-                                        value: 'print',
-                                        child: Text('Cetak'),
-                                      ),
-                                    );
-                                    return items;
-                                  },
-                                ),
-                              ],
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: _statusIconColor(status).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _statusIcon(status),
+                              color: _statusIconColor(status),
+                              size: 20,
                             ),
                           ),
-                        );
-                      },
-                    ),
-            ),
+                          title: Text(
+                            e['nama_barang'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text(
+                                'Supplier: ${e['nama_supplier'] ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Qty: ${e['qty'] ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Tanggal: $tanggal',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Operator: ${e['user_name'] ?? '-'}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              if (e['keterangan'] != null && 
+                                  e['keterangan'].toString().isNotEmpty)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Keterangan: ${e['keterangan']}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          trailing: _statusChip(status),
+                        ),
+                      );
+                    },
+                  ),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showMasukDialog,
+        backgroundColor: Colors.teal.shade700,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.add),
-        tooltip: 'Input Barang Masuk',
       ),
     );
   }
