@@ -80,62 +80,136 @@ class _CreateRequestPageState extends State<CreateRequestPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const RoleDrawer(),
-      appBar: AppBar(
-        title: const Text('Create Request'),
-        // show hamburger menu instead of back button
-        automaticallyImplyLeading: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Pilih Barang'),
-                  const SizedBox(height: 8),
-                  DropdownButton<Map<String, dynamic>>(
-                    isExpanded: true,
-                    value: _selectedItem,
-                    items: _items
-                        .map(
-                          (it) => DropdownMenuItem(
-                            value: it,
-                            child: Text(
-                              it['nama_barang'] ?? it['name'] ?? 'Unknown',
-                            ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    drawer: const RoleDrawer(),
+    backgroundColor: Colors.grey.shade100,
+    appBar: AppBar(
+  title: const Text('Buat Request Barang'),
+  elevation: 0,
+  backgroundColor: Colors.teal.shade700,
+  foregroundColor: Colors.white,
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () => Navigator.pop(context),
+  ),
+),
+
+    body: _loading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                width: 600,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Form Request Barang",
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal.shade800,
                           ),
-                        )
-                        .toList(),
-                    onChanged: (v) => setState(() => _selectedItem = v),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _qtyController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Jumlah (qty)',
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _notesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Keterangan (opsional)',
+                    const SizedBox(height: 20),
+
+                    Text("Pilih Barang",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700)),
+                    const SizedBox(height: 8),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: DropdownButton<Map<String, dynamic>>(
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        value: _selectedItem,
+                        items: _items
+                            .map(
+                              (it) => DropdownMenuItem(
+                                value: it,
+                                child: Text(
+                                  it['nama_barang'] ?? it['name'] ?? 'Unknown',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() => _selectedItem = v),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _submit,
-                    icon: const Icon(Icons.send),
-                    label: const Text('Kirim Request'),
-                  ),
-                ],
+
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _qtyController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Jumlah (qty)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _notesController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: 'Keterangan (opsional)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+
+                    
+                    
+                    const SizedBox(height: 25),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal.shade700,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        label: const Text(
+                          'Kirim Request',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-      ),
-    );
-  }
+            ),
+          ),
+  );
+}
+
 }

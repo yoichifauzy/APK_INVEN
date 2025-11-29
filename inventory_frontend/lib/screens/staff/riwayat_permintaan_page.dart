@@ -31,32 +31,104 @@ class _RiwayatPermintaanPageState extends State<RiwayatPermintaanPage> {
     });
   }
 
+  Widget _statusChip(String? status) {
+    status = status ?? '';
+    Color c;
+    switch (status) {
+      case 'pending':
+        c = Colors.orange;
+        break;
+      case 'approved':
+        c = Colors.blue;
+        break;
+      case 'done':
+        c = const Color.fromARGB(255, 21, 222, 28);
+        break;
+      case 'rejected':
+        c = Colors.red;
+        break;
+      default:
+        c = Colors.grey;
+    }
+    return Chip(label: Text(status), backgroundColor: c.withOpacity(0.15));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const RoleDrawer(),
-      appBar: AppBar(title: const Text('Riwayat Permintaan')),
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: const Text('Riwayat Permintaan'),
+        backgroundColor: Colors.teal.shade700,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: _myRequests.length,
-                itemBuilder: (c, i) {
-                  final r = _myRequests[i];
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                        r['nama_barang'] ?? r['barang']?['nama_barang'] ?? '-',
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: _myRequests.isEmpty
+                    ? Center(
+                        child: Text(
+                          "Belum ada riwayat permintaan",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: _myRequests.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (c, i) {
+                          final r = _myRequests[i];
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(16),
+                              title: Text(
+                                r['nama_barang'] ??
+                                    r['barang']?['nama_barang'] ??
+                                    '-',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.teal.shade800,
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  "Tanggal: ${r['tanggal_request'] ?? '-'}\nAlasan: ${r['alasan_penolakan'] ?? '-'}",
+                                  style: TextStyle(
+                                    height: 1.4,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ),
+                              trailing: _statusChip(r['status']?.toString()),
+                            ),
+                          );
+                        },
                       ),
-                      subtitle: Text(
-                        'Tanggal: ${r['tanggal_request'] ?? ''}\nStatus: ${r['status'] ?? ''}\nAlasan: ${r['alasan_penolakan'] ?? '-'}',
-                      ),
-                      isThreeLine: true,
-                    ),
-                  );
-                },
               ),
             ),
     );
