@@ -100,15 +100,11 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
                       const SizedBox(height: 4),
                       Text(
                         'Barang: ${_barangName(req)}',
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                        ),
+                        style: TextStyle(color: Colors.grey.shade700),
                       ),
                       Text(
                         'Peminta: ${_requester(req)}',
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                        ),
+                        style: TextStyle(color: Colors.grey.shade700),
                       ),
                     ],
                   ),
@@ -165,7 +161,7 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal.shade700,
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
               ),
               child: const Text('Proses'),
             ),
@@ -173,9 +169,9 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
         );
       },
     );
-    
+
     if (res != true) return;
-    
+
     final qty = int.tryParse(qtyController.text) ?? 0;
     if (qty <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +183,7 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
       );
       return;
     }
-    
+
     setState(() => _loading = true);
     final auth = Provider.of<AuthService>(context, listen: false);
     final ok = await auth.processRequestToKeluar(req['id'], {
@@ -196,7 +192,7 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
       'keterangan': keteranganController.text,
     });
     setState(() => _loading = false);
-    
+
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -227,9 +223,12 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
         ),
       ),
       body: _loading
@@ -239,138 +238,126 @@ class _ProcessKeluarPageState extends State<ProcessKeluarPage> {
               ),
             )
           : _requests.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outlined,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Tidak ada request untuk diproses',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Semua request approved telah diproses',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: Colors.teal.shade700,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _requests.length,
-                    itemBuilder: (ctx, i) {
-                      final r = _requests[i];
-                      final tanggal = _formatDate(r['tanggal_request']);
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Tidak ada request untuk diproses',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Semua request approved telah diproses',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: Colors.teal.shade700,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _requests.length,
+                itemBuilder: (ctx, i) {
+                  final r = _requests[i];
+                  final tanggal = _formatDate(r['tanggal_request']);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          color: Colors.orange.shade50,
+                          shape: BoxShape.circle,
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.pending_actions,
-                              color: Colors.orange.shade700,
-                              size: 20,
-                            ),
+                        child: Icon(
+                          Icons.pending_actions,
+                          color: Colors.orange.shade700,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        _barangName(r),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Peminta: ${_requester(r)}',
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
-                          title: Text(
-                            _barangName(r),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Qty: ${r['qty']}',
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Peminta: ${_requester(r)}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Qty: ${r['qty']}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Tanggal: $tanggal',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              if (r['keterangan'] != null && 
-                                  r['keterangan'].toString().isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Keterangan: ${r['keterangan']}',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                            ],
+                          const SizedBox(height: 2),
+                          Text(
+                            'Tanggal: $tanggal',
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
-                          trailing: ElevatedButton(
-                            onPressed: () => _process(r),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal.shade700,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                          if (r['keterangan'] != null &&
+                              r['keterangan'].toString().isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Keterangan: ${r['keterangan']}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
-                            child: const Text('Proses'),
+                        ],
+                      ),
+                      trailing: ElevatedButton(
+                        onPressed: () => _process(r),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal.shade700,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
+                        child: const Text('Proses'),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

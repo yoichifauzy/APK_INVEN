@@ -141,13 +141,15 @@ class _ManagerApprovePageState extends State<ManagerApprovePage> {
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
-        leading: IconButton(
-  icon: const Icon(Icons.arrow_back),
-  onPressed: () {
-    print('🔙 Back button pressed');
-    Navigator.maybePop(context); // Gunakan maybePop instead of pop
-  },
-),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              // Open the drawer from the AppBar leading icon
+              Scaffold.of(ctx).openDrawer();
+            },
+          ),
+        ),
         // Hapus actions (refresh button)
       ),
       body: _loading
@@ -157,154 +159,148 @@ class _ManagerApprovePageState extends State<ManagerApprovePage> {
               ),
             )
           : _requests.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Tidak ada request pending',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Semua request telah diproses',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: 80,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: Colors.teal.shade700,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _requests.length,
-                    itemBuilder: (c, i) {
-                      final r = _requests[i];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Tidak ada request pending',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Semua request telah diproses',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: Colors.teal.shade700,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _requests.length,
+                itemBuilder: (c, i) {
+                  final r = _requests[i];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.pending_actions,
+                          color: Colors.orange.shade700,
+                          size: 24,
+                        ),
+                      ),
+                      title: Text(
+                        _namaBarang(r),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Peminta: ${_peminta(r)}',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 14,
+                            ),
                           ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Qty: ${r['qty']}',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          if (r['keterangan'] != null &&
+                              r['keterangan'].toString().isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Keterangan: ${r['keterangan']}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
                             decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
+                              color: Colors.green.shade50,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
-                              Icons.pending_actions,
-                              color: Colors.orange.shade700,
-                              size: 24,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.check,
+                                color: Colors.green.shade700,
+                              ),
+                              onPressed: () => _approve(r['id']),
                             ),
                           ),
-                          title: Text(
-                            _namaBarang(r),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                          const SizedBox(width: 4),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: Colors.red.shade700,
+                              ),
+                              onPressed: () => _reject(r['id']),
                             ),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Peminta: ${_peminta(r)}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Qty: ${r['qty']}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              if (r['keterangan'] != null &&
-                                  r['keterangan'].toString().isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Keterangan: ${r['keterangan']}',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.check,
-                                    color: Colors.green.shade700,
-                                  ),
-                                  onPressed: () => _approve(r['id']),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: Colors.red.shade700,
-                                  ),
-                                  onPressed: () => _reject(r['id']),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

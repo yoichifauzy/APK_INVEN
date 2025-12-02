@@ -42,7 +42,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
     Color color;
     Color textColor;
     String statusText;
-    
+
     switch (status) {
       case 'pending':
         color = Colors.orange.shade50;
@@ -64,7 +64,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
         textColor = Colors.grey.shade800;
         statusText = 'Unknown';
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -226,10 +226,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: Text(
-              'Batal',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
+            child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -251,7 +248,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
               } catch (_) {}
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal.shade700,
+              backgroundColor: const Color.fromARGB(255, 187, 204, 202),
             ),
             child: const Text('Simpan'),
           ),
@@ -284,7 +281,7 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
 
   Future<void> _showDetail(Map<String, dynamic> e) async {
     final tanggal = _formatDate(e['tanggal_masuk']?.toString());
-    
+
     await showDialog<void>(
       context: context,
       builder: (c) => AlertDialog(
@@ -361,9 +358,12 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
       ),
       body: _loading
@@ -373,136 +373,122 @@ class _BarangMasukPageState extends State<BarangMasukPage> {
               ),
             )
           : _entries.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.inventory_2_outlined,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada data barang masuk',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Data barang masuk akan muncul di sini',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadAll,
-                  color: Colors.teal.shade700,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _entries.length,
-                    itemBuilder: (context, i) {
-                      final e = _entries[i];
-                      final status = (e['status'] ?? 'pending').toString();
-                      final tanggal = _formatDate(e['tanggal_masuk']?.toString());
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada data barang masuk',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Data barang masuk akan muncul di sini',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadAll,
+              color: Colors.teal.shade700,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _entries.length,
+                itemBuilder: (context, i) {
+                  final e = _entries[i];
+                  final status = (e['status'] ?? 'pending').toString();
+                  final tanggal = _formatDate(e['tanggal_masuk']?.toString());
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          color: _statusIconColor(status).withOpacity(0.1),
+                          shape: BoxShape.circle,
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: _statusIconColor(status).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              _statusIcon(status),
-                              color: _statusIconColor(status),
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            e['nama_barang'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Supplier: ${e['nama_supplier'] ?? '-'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Qty: ${e['qty'] ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Tanggal: $tanggal',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Operator: ${e['user_name'] ?? '-'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              if (e['keterangan'] != null && 
-                                  e['keterangan'].toString().isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Keterangan: ${e['keterangan']}',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          trailing: _statusChip(status),
+                        child: Icon(
+                          _statusIcon(status),
+                          color: _statusIconColor(status),
+                          size: 20,
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                      title: Text(
+                        e['nama_barang'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Supplier: ${e['nama_supplier'] ?? '-'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Qty: ${e['qty'] ?? ''}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Tanggal: $tanggal',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Operator: ${e['user_name'] ?? '-'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          if (e['keterangan'] != null &&
+                              e['keterangan'].toString().isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Keterangan: ${e['keterangan']}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                      trailing: _statusChip(status),
+                    ),
+                  );
+                },
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showMasukDialog,
         backgroundColor: Colors.teal.shade700,

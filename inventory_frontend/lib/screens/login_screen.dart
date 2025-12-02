@@ -94,48 +94,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  // Show a simple forgot-password dialog WITHOUT validation
-  void _showForgotPasswordDialog() {
-    final _fpController = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text('Lupa Password'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Masukkan email Anda. Tidak ada validasi diterapkan.'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _fpController,
-              decoration: const InputDecoration(labelText: 'Email (opsional)'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(c);
-              // No validation: just show a confirmation message
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Jika email terdaftar, instruksi reset akan dikirim.',
-                  ),
-                  backgroundColor: Colors.green.shade600,
-                ),
-              );
-            },
-            child: const Text('Kirim'),
-          ),
-        ],
-      ),
-    );
-  }
+  // Forgot-password removed: feature intentionally disabled
 
   @override
   Widget build(BuildContext context) {
@@ -304,18 +263,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                           const SizedBox(height: 8),
 
-                          // FORGOT PASSWORD
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () => _showForgotPasswordDialog(),
-                              child: Text(
-                                'Lupa Password?',
-                                style: TextStyle(color: Colors.teal.shade700),
-                              ),
-                            ),
-                          ),
-
+                          // Forgot-password removed
                           const SizedBox(height: 10),
 
                           // ✅ PERUBAHAN: ERROR MESSAGE YANG LEBIH INFORMATIF
