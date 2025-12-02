@@ -23,6 +23,7 @@ import 'screens/admin/masuk_page.dart';
 import 'screens/admin/keluar_page.dart';
 import 'screens/admin/reports_page.dart';
 import 'screens/admin/requests_page.dart';
+import 'screens/profil_page.dart';
 import 'screens/account_settings.dart';
 import 'screens/operator/process_keluar_page.dart';
 import 'screens/manager/requests_all_page.dart';
@@ -89,6 +90,8 @@ class MyApp extends StatelessWidget {
         '/operator/process-keluar': (context) => const ProcessKeluarPage(),
         '/operator/riwayat': (context) => const BarangKeluarPage(),
         // keep a single canonical dashboard route ('/dashboard'). Do not register '/operator' to avoid duplicates.
+        '/profile': (context) => const ProfilePage(),
+        '/account_settings': (context) => const AccountSettingsPage(),
         '/account': (context) => const AccountSettingsPage(),
         '/manager': (context) => const ManagerDashboard(),
         '/staff': (context) => const StaffDashboard(),
