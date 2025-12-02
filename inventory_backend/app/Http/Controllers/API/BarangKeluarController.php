@@ -48,7 +48,11 @@ class BarangKeluarController extends Controller
                 'tanggal_keluar' => $r->tanggal_keluar,
                 'id_user' => $r->id_user,
                 'user_name' => $r->operator?->nama ?? $r->operator?->name,
+                // id_request is kept for frontend linking to the original RequestBarang
                 'id_request' => $r->id_request,
+                // also expose requester info (if present) so frontend can display who requested the item
+                'request_user_id' => $r->request?->user?->id ?? null,
+                'request_from' => $r->request?->user?->name ?? '-',
                 'keterangan' => $r->keterangan,
                 'created_at' => $r->created_at,
                 'updated_at' => $r->updated_at,

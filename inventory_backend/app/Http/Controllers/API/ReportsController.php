@@ -108,6 +108,10 @@ class ReportsController extends Controller
             return [
                 'tanggal_keluar' => $r->tanggal_keluar,
                 'barang' => $r->barang?->nama_barang,
+                // include id_request and request_user_id so frontend can reliably
+                // resolve requester when nested relations are not fully loaded
+                'id_request' => $r->id_request,
+                'request_user_id' => $r->request?->user?->id ?? null,
                 'request_from' => $r->request?->user?->name ?? '-',
                 'qty' => $r->qty,
                 'operator' => $r->operator?->name,
