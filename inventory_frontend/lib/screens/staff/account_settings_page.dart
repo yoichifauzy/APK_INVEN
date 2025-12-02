@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/role_drawer.dart';
-import '../services/auth_service.dart';
+import '../../widgets/role_drawer.dart';
+import '../../services/auth_service.dart';
 
-class AccountSettingsPage extends StatefulWidget {
-  const AccountSettingsPage({Key? key}) : super(key: key);
+class StaffAccountSettingsPage extends StatefulWidget {
+  const StaffAccountSettingsPage({Key? key}) : super(key: key);
 
   @override
-  State<AccountSettingsPage> createState() => _AccountSettingsPageState();
+  State<StaffAccountSettingsPage> createState() =>
+      _StaffAccountSettingsPageState();
 }
 
-class _AccountSettingsPageState extends State<AccountSettingsPage> {
+class _StaffAccountSettingsPageState extends State<StaffAccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
 
@@ -80,14 +81,14 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       backgroundColor: Colors.grey[50],
       drawer: const RoleDrawer(),
       appBar: AppBar(
-        title: const Text('Pengaturan Akun'),
+        title: const Text('Pengaturan Akun — Staff'),
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
         leading: Builder(
-          builder: (context) => IconButton(
+          builder: (ctx) => IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
       ),
@@ -215,6 +216,28 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                                       context,
                                       listen: false,
                                     );
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (c) => AlertDialog(
+                                        title: const Text('Logout'),
+                                        content: const Text(
+                                          'Apakah anda ingin logout?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(c, false),
+                                            child: const Text('Batal'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.pop(c, true),
+                                            child: const Text('Ya, Logout'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm != true) return;
                                     await auth.logout();
                                     Navigator.pushReplacementNamed(
                                       context,

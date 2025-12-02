@@ -47,7 +47,7 @@ class _RiwayatPermintaanPageState extends State<RiwayatPermintaanPage> {
     Color color;
     Color textColor;
     String statusText;
-    
+
     switch (status) {
       case 'pending':
         color = Colors.orange.shade50;
@@ -74,7 +74,7 @@ class _RiwayatPermintaanPageState extends State<RiwayatPermintaanPage> {
         textColor = Colors.grey.shade800;
         statusText = 'Unknown';
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -143,9 +143,18 @@ class _RiwayatPermintaanPageState extends State<RiwayatPermintaanPage> {
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              final scaffold = Scaffold.of(ctx);
+              if (scaffold.isDrawerOpen) {
+                Navigator.pop(ctx);
+              } else {
+                scaffold.openDrawer();
+              }
+            },
+          ),
         ),
       ),
       body: _loading
@@ -155,140 +164,130 @@ class _RiwayatPermintaanPageState extends State<RiwayatPermintaanPage> {
               ),
             )
           : _myRequests.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.history_outlined,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada riwayat permintaan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Permintaan yang Anda buat akan muncul di sini',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: Colors.teal.shade700,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _myRequests.length,
-                    itemBuilder: (c, i) {
-                      final r = _myRequests[i];
-                      final status = r['status']?.toString();
-                      final tanggal = _formatDate(r['tanggal_request']);
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada riwayat permintaan',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Permintaan yang Anda buat akan muncul di sini',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: Colors.teal.shade700,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _myRequests.length,
+                itemBuilder: (c, i) {
+                  final r = _myRequests[i];
+                  final status = r['status']?.toString();
+                  final tanggal = _formatDate(r['tanggal_request']);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          color: _statusIconColor(status).withOpacity(0.1),
+                          shape: BoxShape.circle,
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: _statusIconColor(status).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              _statusIcon(status),
-                              color: _statusIconColor(status),
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            _barangName(r),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Qty: ${r['qty']}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Tanggal: $tanggal',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              if (r['keterangan'] != null && 
-                                  r['keterangan'].toString().isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Keterangan: ${r['keterangan']}',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              if (r['alasan_penolakan'] != null && 
-                                  r['alasan_penolakan'].toString().isNotEmpty)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Alasan: ${r['alasan_penolakan']}',
-                                      style: TextStyle(
-                                        color: Colors.red.shade600,
-                                        fontSize: 12,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                          trailing: _statusChip(status),
+                        child: Icon(
+                          _statusIcon(status),
+                          color: _statusIconColor(status),
+                          size: 20,
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                      title: Text(
+                        _barangName(r),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Qty: ${r['qty']}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Tanggal: $tanggal',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          if (r['keterangan'] != null &&
+                              r['keterangan'].toString().isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Keterangan: ${r['keterangan']}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          if (r['alasan_penolakan'] != null &&
+                              r['alasan_penolakan'].toString().isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Alasan: ${r['alasan_penolakan']}',
+                                  style: TextStyle(
+                                    color: Colors.red.shade600,
+                                    fontSize: 12,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                      trailing: _statusChip(status),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }

@@ -16,15 +16,17 @@ class _RequestsPageState extends State<RequestsPage> {
   List<Map<String, dynamic>> _requests = [];
   Timer? _pollTimer;
   Map<String, Map<String, dynamic>> _userMap = {};
+  final Map<int, bool> _actionLoading = {};
 
   @override
   void initState() {
     super.initState();
     _load();
     // Poll every 10 seconds to reflect changes (e.g. manager approvals)
+    // Use background polling so we don't show a full-screen loader repeatedly.
     _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (!mounted) return;
-      if (!_loading) _load();
+      if (!_loading) _load(background: true);
     });
   }
 
@@ -34,8 +36,10 @@ class _RequestsPageState extends State<RequestsPage> {
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
+  // If `background` is true we refresh data silently without showing the
+  // full-screen loading indicator (useful for polling).
+  Future<void> _load({bool background = false}) async {
+    if (!background) setState(() => _loading = true);
     final auth = Provider.of<AuthService>(context, listen: false);
     final items = await auth.getRequestBarang();
     // Load users once so we can resolve approver IDs -> username/role
@@ -52,7 +56,7 @@ class _RequestsPageState extends State<RequestsPage> {
         // include requests that have an approver (e.g. approved by manager)
         return _extractApproverFromMap(r) != null;
       }).toList();
-      _loading = false;
+      if (!background) _loading = false;
     });
   }
 
@@ -132,14 +136,17 @@ class _RequestsPageState extends State<RequestsPage> {
 
   Future<void> _approve(int id) async {
     final auth = Provider.of<AuthService>(context, listen: false);
-    setState(() => _loading = true);
+    _actionLoading[id] = true;
+    setState(() {});
     final ok = await auth.updateRequestStatus(id, 'approved');
-    setState(() => _loading = false);
+    _actionLoading[id] = false;
+    setState(() {});
     if (ok) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Request disetujui')));
-      _load();
+      // Refresh in background to avoid blocking UI with full-screen loader
+      _load(background: true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.lastError ?? 'Gagal menyetujui request')),
@@ -173,14 +180,16 @@ class _RequestsPageState extends State<RequestsPage> {
     );
     if (res == null) return;
     final auth = Provider.of<AuthService>(context, listen: false);
-    setState(() => _loading = true);
+    _actionLoading[id] = true;
+    setState(() {});
     final ok = await auth.updateRequestStatus(id, 'rejected', reason: res);
-    setState(() => _loading = false);
+    _actionLoading[id] = false;
+    setState(() {});
     if (ok) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Request ditolak')));
-      _load();
+      _load(background: true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.lastError ?? 'Gagal menolak request')),
@@ -237,15 +246,19 @@ class _RequestsPageState extends State<RequestsPage> {
                             'Peminta: ${requesterName()} — Jumlah: ${r['qty']}',
                           ),
                           const SizedBox(height: 6),
-                          Row(
+                          // Use Wrap so long approver badge will wrap instead of
+                          // causing a RenderFlex overflow on narrow screens.
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
                             children: [
                               Text(
                                 'Status: ',
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(status),
-                              if (approver != null) ...[
-                                const SizedBox(width: 8),
+                              if (approver != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -255,7 +268,12 @@ class _RequestsPageState extends State<RequestsPage> {
                                     color: Colors.green.shade50,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                  ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.person,
@@ -263,41 +281,55 @@ class _RequestsPageState extends State<RequestsPage> {
                                         color: Colors.green.shade700,
                                       ),
                                       const SizedBox(width: 6),
-                                      Text(
-                                        'Disetujui oleh: $approver',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.green.shade700,
+                                      Flexible(
+                                        child: Text(
+                                          'Disetujui oleh: $approver',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green.shade700,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                         ],
                       ),
                       trailing: status == 'pending'
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  ),
-                                  onPressed: () => _approve(r['id']),
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.close,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: () => _reject(r['id']),
-                                ),
-                              ],
-                            )
+                          ? (_actionLoading[r['id']] == true
+                                ? SizedBox(
+                                    width: 36,
+                                    height: 36,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.2,
+                                      ),
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                        onPressed: () => _approve(r['id']),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () => _reject(r['id']),
+                                      ),
+                                    ],
+                                  ))
                           : null,
                     ),
                   );

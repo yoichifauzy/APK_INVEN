@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/role_drawer.dart';
-import '../services/auth_service.dart';
+import '../../widgets/role_drawer.dart';
+import '../../services/auth_service.dart';
 
-class AccountSettingsPage extends StatefulWidget {
-  const AccountSettingsPage({Key? key}) : super(key: key);
+class AdminAccountSettingsPage extends StatefulWidget {
+  const AdminAccountSettingsPage({Key? key}) : super(key: key);
 
   @override
-  State<AccountSettingsPage> createState() => _AccountSettingsPageState();
+  State<AdminAccountSettingsPage> createState() =>
+      _AdminAccountSettingsPageState();
 }
 
-class _AccountSettingsPageState extends State<AccountSettingsPage> {
+class _AdminAccountSettingsPageState extends State<AdminAccountSettingsPage> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
 
@@ -76,14 +77,22 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthService>(context);
+    final user = auth.user;
+    final isManager = (user?.roles ?? []).contains('manager');
+    final titleText = isManager
+        ? 'Pengaturan Akun — Manager'
+        : 'Pengaturan Akun — Admin';
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       drawer: const RoleDrawer(),
       appBar: AppBar(
-        title: const Text('Pengaturan Akun'),
+        title: Text(titleText),
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
+        // Show burger menu that opens the drawer for admin
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),

@@ -157,10 +157,7 @@ class _ItemsPageState extends State<ItemsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'Batal',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
+            child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -226,10 +223,7 @@ class _ItemsPageState extends State<ItemsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: Text(
-              'Batal',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
+            child: Text('Batal', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(c, true),
@@ -305,9 +299,12 @@ class _ItemsPageState extends State<ItemsPage> {
         backgroundColor: Colors.teal.shade700,
         elevation: 0,
         foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
       ),
       body: _loading
@@ -317,138 +314,124 @@ class _ItemsPageState extends State<ItemsPage> {
               ),
             )
           : _items.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.inventory_2_outlined,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Belum ada data barang',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Data barang akan muncul di sini',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadAll,
-                  color: Colors.teal.shade700,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _items.length,
-                    itemBuilder: (context, i) {
-                      final it = _items[i];
-                      final stok = int.tryParse(it['stok']?.toString() ?? '0') ?? 0;
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada data barang',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Data barang akan muncul di sini',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadAll,
+              color: Colors.teal.shade700,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _items.length,
+                itemBuilder: (context, i) {
+                  final it = _items[i];
+                  final stok = int.tryParse(it['stok']?.toString() ?? '0') ?? 0;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          color: Colors.blue.shade50,
+                          shape: BoxShape.circle,
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.inventory_2_outlined,
-                              color: Colors.blue.shade700,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            it['nama_barang'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Supplier: ${it['supplier_name'] ?? '-'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Kategori: ${it['category_name'] ?? '-'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Lokasi: ${it['lokasi'] ?? '-'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Harga: ${it['harga'] ?? '0'}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _stockChip(stok),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.edit_outlined,
-                                  color: Colors.blue.shade600,
-                                ),
-                                onPressed: () => _showItemDialog(item: it),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.delete_outlined,
-                                  color: Colors.red.shade600,
-                                ),
-                                onPressed: () => _deleteItem(it),
-                              ),
-                            ],
-                          ),
+                        child: Icon(
+                          Icons.inventory_2_outlined,
+                          color: Colors.blue.shade700,
+                          size: 20,
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                      title: Text(
+                        it['nama_barang'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Text(
+                            'Supplier: ${it['supplier_name'] ?? '-'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Kategori: ${it['category_name'] ?? '-'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Lokasi: ${it['lokasi'] ?? '-'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Harga: ${it['harga'] ?? '0'}',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _stockChip(stok),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.blue.shade600,
+                            ),
+                            onPressed: () => _showItemDialog(item: it),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outlined,
+                              color: Colors.red.shade600,
+                            ),
+                            onPressed: () => _deleteItem(it),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showItemDialog(),
         backgroundColor: Colors.teal.shade700,

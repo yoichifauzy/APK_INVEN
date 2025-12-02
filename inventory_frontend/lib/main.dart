@@ -15,16 +15,21 @@ import 'screens/dashboards/staff_dashboard.dart';
 import 'screens/staff/create_request.dart';
 import 'screens/staff/tracking_page.dart';
 import 'screens/staff/riwayat_permintaan_page.dart';
+import 'screens/staff/profile_page.dart';
+import 'screens/staff/account_settings_page.dart';
 import 'screens/dashboards/supplier_dashboard.dart';
-import 'screens/admin/users_page.dart';
+import 'screens/admin/profile_page.dart';
 import 'screens/admin/suppliers_page.dart';
 import 'screens/admin/items_page.dart';
 import 'screens/admin/masuk_page.dart';
 import 'screens/admin/keluar_page.dart';
 import 'screens/admin/reports_page.dart';
 import 'screens/admin/requests_page.dart';
+import 'screens/admin/account_settings_page.dart';
+import 'screens/admin/users_page.dart';
 import 'screens/account_settings.dart';
 import 'screens/operator/process_keluar_page.dart';
+import 'screens/operator/profile_page.dart';
 import 'screens/manager/requests_all_page.dart';
 import 'screens/manager/laporan_page.dart';
 import 'screens/manager/items_page.dart';
@@ -80,6 +85,10 @@ class MyApp extends StatelessWidget {
         '/admin/keluar': (context) => const BarangKeluarPage(),
         '/admin/reports': (context) => const ReportsPage(),
         '/admin/requests': (context) => const RequestsPage(),
+        '/admin/account': (context) => const AdminAccountSettingsPage(),
+        '/admin/profile': (context) => const AdminProfilePage(),
+        '/staff/profile': (context) => const StaffProfilePage(),
+        '/staff/account': (context) => const StaffAccountSettingsPage(),
         '/staff/tracking': (context) => const StaffTrackingPage(),
         '/staff/riwayat': (context) => const RiwayatPermintaanPage(),
         '/manager/requests': (context) => const ManagerRequestsPage(),
@@ -88,6 +97,7 @@ class MyApp extends StatelessWidget {
         '/manager/approve': (context) => const ManagerApprovePage(),
         '/operator/process-keluar': (context) => const ProcessKeluarPage(),
         '/operator/riwayat': (context) => const BarangKeluarPage(),
+        '/operator/profile': (context) => const OperatorProfilePage(),
         // keep a single canonical dashboard route ('/dashboard'). Do not register '/operator' to avoid duplicates.
         '/account': (context) => const AccountSettingsPage(),
         '/manager': (context) => const ManagerDashboard(),

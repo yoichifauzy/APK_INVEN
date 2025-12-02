@@ -35,7 +35,7 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
     Color color;
     Color textColor;
     String statusText;
-    
+
     switch (status) {
       case 'pending':
         color = Colors.orange.shade50;
@@ -62,7 +62,7 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
         textColor = Colors.grey.shade800;
         statusText = 'Unknown';
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -122,7 +122,8 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
   }
 
   Future<void> _showDetail(Map<String, dynamic> e) async {
-    final tanggalRaw = e['tanggal_keluar'] ?? e['tanggal'] ?? e['tanggal_keluar'];
+    final tanggalRaw =
+        e['tanggal_keluar'] ?? e['tanggal'] ?? e['tanggal_keluar'];
     String tanggal = '';
     if (tanggalRaw != null) {
       try {
@@ -155,7 +156,9 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
                     ),
                     const SizedBox(height: 4),
                     Text('Keperluan: ${e['keterangan'] ?? '-'}'),
-                    Text('Jumlah keluar: ${e['qty'] ?? e['jumlah_keluar'] ?? ''}'),
+                    Text(
+                      'Jumlah keluar: ${e['qty'] ?? e['jumlah_keluar'] ?? ''}',
+                    ),
                     Text('Tanggal: $tanggal'),
                     Text(
                       'Operator: ${e['user_name'] ?? e['operator']?['nama'] ?? e['operator']?['name'] ?? '-'}',
@@ -169,9 +172,7 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey.shade600,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.grey.shade600),
             child: const Text('Tutup'),
           ),
           ElevatedButton(
@@ -238,9 +239,7 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey.shade600,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.grey.shade600),
             child: const Text('Batal'),
           ),
           ElevatedButton(
@@ -305,9 +304,7 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey.shade600,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.grey.shade600),
             child: const Text('Batal'),
           ),
           ElevatedButton(
@@ -349,20 +346,23 @@ class _BarangKeluarPageState extends State<BarangKeluarPage> {
 
   @override
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey[50],
-    appBar: AppBar(
-      title: const Text('Data Barang Keluar'),
-      backgroundColor: Colors.teal.shade700,
-      elevation: 0,
-      foregroundColor: Colors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text('Data Barang Keluar'),
+        backgroundColor: Colors.teal.shade700,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
       ),
-    ),
-    
+
       drawer: const RoleDrawer(),
       body: _loading
           ? Center(
@@ -436,7 +436,9 @@ Widget build(BuildContext context) {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: _statusIconColor(status).withOpacity(0.1),
+                                color: _statusIconColor(
+                                  status,
+                                ).withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -458,23 +460,17 @@ Widget build(BuildContext context) {
                                 const SizedBox(height: 4),
                                 Text(
                                   'Qty: ${e['qty'] ?? e['jumlah_keluar'] ?? ''} • Tanggal: $tanggalStr',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: TextStyle(color: Colors.grey.shade600),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   'Keperluan: ${e['keterangan'] ?? '-'}',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: TextStyle(color: Colors.grey.shade600),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   'Operator: ${e['user_name'] ?? e['operator']?['name'] ?? '-'}',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: TextStyle(color: Colors.grey.shade600),
                                 ),
                               ],
                             ),
@@ -489,25 +485,38 @@ Widget build(BuildContext context) {
                                     color: Colors.grey.shade600,
                                   ),
                                   onSelected: (v) async {
-                                    if (v == 'view') return await _showDetail(e);
-                                    if (v == 'edit') return await _showEditDialog(e);
-                                    if (v == 'delete') return await _deleteEntry(e);
+                                    if (v == 'view')
+                                      return await _showDetail(e);
+                                    if (v == 'edit')
+                                      return await _showEditDialog(e);
+                                    if (v == 'delete')
+                                      return await _deleteEntry(e);
                                     if (v == 'print') {
                                       if (!mounted) return;
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: const Text('Cetak belum diimplementasikan'),
-                                          backgroundColor: Colors.orange.shade600,
+                                          content: const Text(
+                                            'Cetak belum diimplementasikan',
+                                          ),
+                                          backgroundColor:
+                                              Colors.orange.shade600,
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
                                     }
                                     if (v == 'export') {
                                       if (!mounted) return;
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: const Text('Export laporan belum diimplementasikan'),
-                                          backgroundColor: Colors.orange.shade600,
+                                          content: const Text(
+                                            'Export laporan belum diimplementasikan',
+                                          ),
+                                          backgroundColor:
+                                              Colors.orange.shade600,
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
@@ -539,7 +548,11 @@ Widget build(BuildContext context) {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete, size: 20, color: Colors.red),
+                                            Icon(
+                                              Icons.delete,
+                                              size: 20,
+                                              color: Colors.red,
+                                            ),
                                             SizedBox(width: 8),
                                             Text('Delete'),
                                           ],
@@ -576,7 +589,7 @@ Widget build(BuildContext context) {
                     ),
             ),
       floatingActionButton:
-          Provider.of<AuthService>(context).user?.hasRole('operator') == true
+          Provider.of<AuthService>(context).user?.hasRole('admin') == true
           ? FloatingActionButton(
               onPressed: () async {
                 // Quick create dialog for demo
@@ -640,7 +653,9 @@ Widget build(BuildContext context) {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Tidak ada barang untuk dipilih'),
+                                content: const Text(
+                                  'Tidak ada barang untuk dipilih',
+                                ),
                                 backgroundColor: Colors.orange.shade600,
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -660,7 +675,10 @@ Widget build(BuildContext context) {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal.shade700,
                         ),
-                        child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          'Simpan',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),

@@ -36,6 +36,12 @@ dependencies:
   go_router: ^7.0.1
   flutter_secure_storage: ^8.0.0
   url_launcher: ^6.1.7
+  # Export & sharing
+  pdf: ^3.10.1
+  printing: ^5.10.0
+  excel: ^2.0.3
+  path_provider: ^2.0.14
+  share_plus: ^6.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -136,19 +136,13 @@ class _AdminDashboardState extends State<AdminDashboard>
                             );
                           }
 
-                          final half = (width - 16) / 2;
+                          // Use Expanded so children never exceed available width
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
-                                width: half,
-                                child: _buildSupplierCard(),
-                              ),
+                              Expanded(child: _buildSupplierCard()),
                               const SizedBox(width: 16),
-                              SizedBox(
-                                width: half,
-                                child: _buildRoleDistribution(),
-                              ),
+                              Expanded(child: _buildRoleDistribution()),
                             ],
                           );
                         },
@@ -269,22 +263,26 @@ class _AdminDashboardState extends State<AdminDashboard>
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          // Allow the text area to take remaining space and ellipsize if needed
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-              ),
-            ],
+                Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -340,9 +338,15 @@ class _AdminDashboardState extends State<AdminDashboard>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(name, style: const TextStyle(fontSize: 13)),
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: const TextStyle(fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Text(
                         stok.toString(),
                         style: const TextStyle(fontSize: 12),
@@ -460,8 +464,11 @@ class _AdminDashboardState extends State<AdminDashboard>
             (e) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Text(e.key), Text(e.value.toString())],
+                children: [
+                  Expanded(child: Text(e.key, overflow: TextOverflow.ellipsis)),
+                  const SizedBox(width: 8),
+                  Text(e.value.toString()),
+                ],
               ),
             ),
           ),
