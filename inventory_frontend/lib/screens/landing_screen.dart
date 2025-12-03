@@ -278,7 +278,7 @@ class _LandingScreenState extends State<LandingScreen>
                                       "SISTEM",
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: 2,
                                       ),
@@ -287,7 +287,7 @@ class _LandingScreenState extends State<LandingScreen>
                                       "INVENTARIS",
                                       style: TextStyle(
                                         color: Colors.white70,
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         fontWeight: FontWeight.w500,
                                         letterSpacing: 3,
                                       ),
@@ -316,7 +316,7 @@ class _LandingScreenState extends State<LandingScreen>
                                       Navigator.pushNamed(context, "/login"),
                                   child: _buildGlassCard(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
+                                      horizontal: 20,
                                       vertical: 12,
                                     ),
                                     child: const Row(
@@ -326,14 +326,14 @@ class _LandingScreenState extends State<LandingScreen>
                                           color: Colors.white,
                                           size: 20,
                                         ),
-                                        SizedBox(width: 8),
+                                        SizedBox(width: 7),
                                         Text(
                                           "MASUK SISTEM",
                                           style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 14,
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w600,
-                                            letterSpacing: 0.5,
+                                            letterSpacing: 0.3,
                                           ),
                                         ),
                                       ],
