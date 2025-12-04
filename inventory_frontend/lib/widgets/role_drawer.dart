@@ -5,6 +5,55 @@ import '../services/auth_service.dart';
 class RoleDrawer extends StatelessWidget {
   const RoleDrawer({super.key});
 
+  // Helper function to check if current route matches menu route
+  bool _isCurrentRoute(BuildContext context, String routeName) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    return currentRoute == routeName;
+  }
+
+  // Helper function to build menu item with active state
+  Widget _buildMenuItem({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required String routeName,
+    required VoidCallback onTap,
+    bool isActive = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isActive ? Colors.teal.withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isActive ? Colors.teal.shade700 : Colors.grey.shade700,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+            color: isActive ? Colors.teal.shade800 : Colors.grey.shade800,
+          ),
+        ),
+        trailing: isActive
+            ? Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.teal.shade700,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              )
+            : null,
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthService>(context);
@@ -15,10 +64,14 @@ class RoleDrawer extends StatelessWidget {
       final roles = user.roles;
       final List<Widget> items = [];
 
+      // Dashboard menu - active check
       items.add(
-        ListTile(
-          leading: const Icon(Icons.dashboard),
-          title: const Text('Dashboard'),
+        _buildMenuItem(
+          context: context,
+          title: 'Dashboard',
+          icon: Icons.dashboard,
+          routeName: '/dashboard',
+          isActive: _isCurrentRoute(context, '/dashboard'),
           onTap: () => Navigator.pushNamedAndRemoveUntil(
             context,
             '/dashboard',
@@ -27,46 +80,73 @@ class RoleDrawer extends StatelessWidget {
         ),
       );
 
+      // Separator
+      items.add(const SizedBox(height: 8));
+
       if (roles.contains('admin')) {
         items.addAll([
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Manajemen User'),
+          _buildMenuItem(
+            context: context,
+            title: 'Manajemen User',
+            icon: Icons.people,
+            routeName: '/admin/users',
+            isActive: _isCurrentRoute(context, '/admin/users'),
             onTap: () => Navigator.pushNamed(context, '/admin/users'),
           ),
-          ListTile(
-            leading: const Icon(Icons.local_shipping),
-            title: const Text('Data Supplier'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Supplier',
+            icon: Icons.local_shipping,
+            routeName: '/admin/suppliers',
+            isActive: _isCurrentRoute(context, '/admin/suppliers'),
             onTap: () => Navigator.pushNamed(context, '/admin/suppliers'),
           ),
-          ListTile(
-            leading: const Icon(Icons.inventory_2),
-            title: const Text('Data Barang'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang',
+            icon: Icons.inventory_2,
+            routeName: '/admin/items',
+            isActive: _isCurrentRoute(context, '/admin/items'),
             onTap: () => Navigator.pushNamed(context, '/admin/items'),
           ),
-          ListTile(
-            leading: const Icon(Icons.download),
-            title: const Text('Data Barang Masuk'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang Masuk',
+            icon: Icons.download,
+            routeName: '/admin/masuk',
+            isActive: _isCurrentRoute(context, '/admin/masuk'),
             onTap: () => Navigator.pushNamed(context, '/admin/masuk'),
           ),
-          ListTile(
-            leading: const Icon(Icons.upload),
-            title: const Text('Data Barang Keluar'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang Keluar',
+            icon: Icons.upload,
+            routeName: '/admin/keluar',
+            isActive: _isCurrentRoute(context, '/admin/keluar'),
             onTap: () => Navigator.pushNamed(context, '/admin/keluar'),
           ),
-          ListTile(
-            leading: const Icon(Icons.insert_drive_file),
-            title: const Text('Laporan'),
+          _buildMenuItem(
+            context: context,
+            title: 'Laporan',
+            icon: Icons.insert_drive_file,
+            routeName: '/admin/reports',
+            isActive: _isCurrentRoute(context, '/admin/reports'),
             onTap: () => Navigator.pushNamed(context, '/admin/reports'),
           ),
-          ListTile(
-            leading: const Icon(Icons.request_page),
-            title: const Text('Approve Requests'),
+          _buildMenuItem(
+            context: context,
+            title: 'Approve Requests',
+            icon: Icons.request_page,
+            routeName: '/admin/requests',
+            isActive: _isCurrentRoute(context, '/admin/requests'),
             onTap: () => Navigator.pushNamed(context, '/admin/requests'),
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Pengaturan Akun'),
+          _buildMenuItem(
+            context: context,
+            title: 'Pengaturan Akun',
+            icon: Icons.settings,
+            routeName: '/admin/account',
+            isActive: _isCurrentRoute(context, '/admin/account'),
             onTap: () => Navigator.pushNamed(context, '/admin/account'),
           ),
         ]);
@@ -74,53 +154,67 @@ class RoleDrawer extends StatelessWidget {
 
       if (roles.contains('manager')) {
         items.addAll([
-          ListTile(
-            leading: const Icon(Icons.check_circle_outline),
-            title: const Text('Persetujuan Request'),
+          _buildMenuItem(
+            context: context,
+            title: 'Persetujuan Request',
+            icon: Icons.check_circle_outline,
+            routeName: '/manager/approve',
+            isActive: _isCurrentRoute(context, '/manager/approve'),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
-              Navigator.pushNamed(
-                context,
-                '/manager/approve',
-              ); // GUNAKAN pushNamed
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/manager/approve');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.list_alt),
-            title: const Text('Semua Request'),
+          _buildMenuItem(
+            context: context,
+            title: 'Semua Request',
+            icon: Icons.list_alt,
+            routeName: '/manager/requests',
+            isActive: _isCurrentRoute(context, '/manager/requests'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/manager/requests');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.insert_chart),
-            title: const Text('Laporan'),
+          _buildMenuItem(
+            context: context,
+            title: 'Laporan',
+            icon: Icons.insert_chart,
+            routeName: '/manager/laporan',
+            isActive: _isCurrentRoute(context, '/manager/laporan'),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer
+              Navigator.pop(context);
               Navigator.pushNamed(context, '/manager/laporan');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.inventory_2),
-            title: const Text('Data Barang'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang',
+            icon: Icons.inventory_2,
+            routeName: '/manager/items',
+            isActive: _isCurrentRoute(context, '/manager/items'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/manager/items');
             },
           ),
-          // Manager should have Profile and Account Settings routed to admin pages
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+          _buildMenuItem(
+            context: context,
+            title: 'Profile',
+            icon: Icons.person,
+            routeName: '/admin/profile',
+            isActive: _isCurrentRoute(context, '/admin/profile'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/admin/profile');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Pengaturan Akun'),
+          _buildMenuItem(
+            context: context,
+            title: 'Pengaturan Akun',
+            icon: Icons.settings,
+            routeName: '/admin/account',
+            isActive: _isCurrentRoute(context, '/admin/account'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/admin/account');
@@ -132,37 +226,53 @@ class RoleDrawer extends StatelessWidget {
       // Operator (staf gudang)
       if (roles.contains('operator')) {
         items.addAll([
-          ListTile(
-            leading: const Icon(Icons.upload_outlined),
-            title: const Text('Proses Barang Keluar'),
+          _buildMenuItem(
+            context: context,
+            title: 'Proses Barang Keluar',
+            icon: Icons.upload_outlined,
+            routeName: '/operator/process-keluar',
+            isActive: _isCurrentRoute(context, '/operator/process-keluar'),
             onTap: () =>
                 Navigator.pushNamed(context, '/operator/process-keluar'),
           ),
-          ListTile(
-            leading: const Icon(Icons.download),
-            title: const Text('Data Barang Masuk'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang Masuk',
+            icon: Icons.download,
+            routeName: '/admin/masuk',
+            isActive: _isCurrentRoute(context, '/admin/masuk'),
             onTap: () => Navigator.pushNamed(context, '/admin/masuk'),
           ),
-          ListTile(
-            leading: const Icon(Icons.inventory_2),
-            title: const Text('Data Barang (Lihat)'),
+          _buildMenuItem(
+            context: context,
+            title: 'Data Barang (Lihat)',
+            icon: Icons.inventory_2,
+            routeName: '/admin/items',
+            isActive: _isCurrentRoute(context, '/admin/items'),
             onTap: () => Navigator.pushNamed(context, '/admin/items'),
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Riwayat Proses'),
+          _buildMenuItem(
+            context: context,
+            title: 'Riwayat Proses',
+            icon: Icons.history,
+            routeName: '/operator/riwayat',
+            isActive: _isCurrentRoute(context, '/operator/riwayat'),
             onTap: () => Navigator.pushNamed(context, '/operator/riwayat'),
           ),
-          // Profile (display-only)
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+          _buildMenuItem(
+            context: context,
+            title: 'Profile',
+            icon: Icons.person,
+            routeName: '/operator/profile',
+            isActive: _isCurrentRoute(context, '/operator/profile'),
             onTap: () => Navigator.pushNamed(context, '/operator/profile'),
           ),
-          // Pengaturan Akun (edit)
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Pengaturan Akun'),
+          _buildMenuItem(
+            context: context,
+            title: 'Pengaturan Akun',
+            icon: Icons.settings,
+            routeName: '/account',
+            isActive: _isCurrentRoute(context, '/account'),
             onTap: () => Navigator.pushNamed(context, '/account'),
           ),
         ]);
@@ -171,34 +281,47 @@ class RoleDrawer extends StatelessWidget {
       // accept both 'staff' and Indonesian 'karyawan'
       if (roles.contains('staff') || roles.contains('karyawan')) {
         items.addAll([
-          ListTile(
-            leading: const Icon(Icons.add_shopping_cart),
-            title: const Text('Request Barang'),
+          _buildMenuItem(
+            context: context,
+            title: 'Request Barang',
+            icon: Icons.add_shopping_cart,
+            routeName: '/staff/create-request',
+            isActive: _isCurrentRoute(context, '/staff/create-request'),
             onTap: () => Navigator.pushNamed(context, '/staff/create-request'),
           ),
-          ListTile(
-            leading: const Icon(Icons.track_changes),
-            title: const Text('Tracking Request'),
+          _buildMenuItem(
+            context: context,
+            title: 'Tracking Request',
+            icon: Icons.track_changes,
+            routeName: '/staff/tracking',
+            isActive: _isCurrentRoute(context, '/staff/tracking'),
             onTap: () => Navigator.pushNamed(context, '/staff/tracking'),
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Riwayat Permintaan'),
+          _buildMenuItem(
+            context: context,
+            title: 'Riwayat Permintaan',
+            icon: Icons.history,
+            routeName: '/staff/riwayat',
+            isActive: _isCurrentRoute(context, '/staff/riwayat'),
             onTap: () => Navigator.pushNamed(context, '/staff/riwayat'),
           ),
-          // Profile (display-only)
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+          _buildMenuItem(
+            context: context,
+            title: 'Profile',
+            icon: Icons.person,
+            routeName: '/staff/profile',
+            isActive: _isCurrentRoute(context, '/staff/profile'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/staff/profile');
             },
           ),
-          // Pengaturan Akun (edit)
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Pengaturan Akun'),
+          _buildMenuItem(
+            context: context,
+            title: 'Pengaturan Akun',
+            icon: Icons.settings,
+            routeName: '/staff/account',
+            isActive: _isCurrentRoute(context, '/staff/account'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/staff/account');
@@ -209,27 +332,32 @@ class RoleDrawer extends StatelessWidget {
 
       if (roles.contains('supplier')) {
         items.add(
-          ListTile(
-            leading: const Icon(Icons.local_shipping),
-            title: const Text('Orders'),
+          _buildMenuItem(
+            context: context,
+            title: 'Orders',
+            icon: Icons.local_shipping,
+            routeName: '/supplier/orders',
+            isActive: _isCurrentRoute(context, '/supplier/orders'),
             onTap: () {},
           ),
         );
       }
 
-      items.add(const Divider());
-      // Generic Profile entry: skip for operator, manager, and staff because
-      // they have dedicated Profile entries above to avoid duplication.
+      // Generic Profile entry
       if (!roles.contains('operator') &&
           !roles.contains('manager') &&
           !roles.contains('staff') &&
           !roles.contains('karyawan')) {
         items.add(
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+          _buildMenuItem(
+            context: context,
+            title: 'Profile',
+            icon: Icons.person,
+            routeName: roles.contains('admin') ? '/admin/profile' : '/account',
+            isActive: roles.contains('admin')
+                ? _isCurrentRoute(context, '/admin/profile')
+                : _isCurrentRoute(context, '/account'),
             onTap: () {
-              // Route admin to admin profile page, others to generic account
               if (roles.contains('admin')) {
                 Navigator.pushNamed(context, '/admin/profile');
               } else {
@@ -240,51 +368,60 @@ class RoleDrawer extends StatelessWidget {
         );
       }
 
+      // Logout section with divider
+      items.add(const SizedBox(height: 16));
+      items.add(const Divider());
       items.add(
-        ListTile(
-          leading: const Icon(Icons.logout),
-          title: const Text('Logout'),
-          onTap: () async {
-            // If user is admin, operator, manager, or staff (karyawan),
-            // show confirmation dialog first while drawer is still mounted.
-            if (roles.contains('admin') ||
-                roles.contains('operator') ||
-                roles.contains('manager') ||
-                roles.contains('staff') ||
-                roles.contains('karyawan')) {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (c) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Apakah anda ingin logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(c, false),
-                      child: const Text('Batal'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade600,
-                        foregroundColor: Colors.white,
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ListTile(
+            leading: Icon(Icons.logout, color: Colors.red.shade600),
+            title: Text(
+              'Logout',
+              style: TextStyle(
+                color: Colors.red.shade700,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () async {
+              if (roles.contains('admin') ||
+                  roles.contains('operator') ||
+                  roles.contains('manager') ||
+                  roles.contains('staff') ||
+                  roles.contains('karyawan')) {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (c) => AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Apakah anda ingin logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(c, false),
+                        child: const Text('Batal'),
                       ),
-                      onPressed: () => Navigator.pop(c, true),
-                      child: const Text('Ya, Logout'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirm != true) return;
-              // Now close drawer and perform logout/navigation
-              Navigator.pop(context);
-              await auth.logout();
-              Navigator.pushReplacementNamed(context, '/');
-            } else {
-              // Non-admin: close drawer first then logout
-              Navigator.pop(context);
-              await auth.logout();
-              Navigator.pushReplacementNamed(context, '/');
-            }
-          },
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade600,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () => Navigator.pop(c, true),
+                        child: const Text('Ya, Logout'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm != true) return;
+                Navigator.pop(context);
+                await auth.logout();
+                Navigator.pushReplacementNamed(context, '/');
+              } else {
+                Navigator.pop(context);
+                await auth.logout();
+                Navigator.pushReplacementNamed(context, '/');
+              }
+            },
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+          ),
         ),
       );
 
@@ -295,11 +432,40 @@ class RoleDrawer extends StatelessWidget {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(user?.name ?? ''),
-            accountEmail: Text(user?.email ?? ''),
+            accountName: Text(
+              user?.name ?? '',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            accountEmail: Text(
+              user?.email ?? '',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade200),
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                user?.name.isNotEmpty == true
+                    ? user!.name[0].toUpperCase()
+                    : 'U',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
+              ),
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.teal.shade700, Colors.teal.shade900],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
           ),
           Expanded(
-            child: ListView(padding: EdgeInsets.zero, children: buildMenu()),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: buildMenu(),
+            ),
           ),
         ],
       ),
